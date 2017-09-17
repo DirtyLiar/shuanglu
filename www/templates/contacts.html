@@ -1,0 +1,93 @@
+<ion-view title="排队列表" hide-back-button="true">
+  <ion-content padding="180">
+    <!--<ul class="list">-->
+      <!--<li class="item item-button-right" ng-repeat="contact in contacts">-->
+        <!--<i class="icon ion-record" style="color: green"></i>-->
+        <!--{{ contact.name }}-->
+        <!--<button class="button button-positive" -->
+                <!--ui-sref="app.call({ isCalling: true, contactName: contact })">-->
+          <!--<i class="icon ion-ios7-telephone"></i>-->
+        <!--</button>-->
+      <!--</li>-->
+    <!--</ul>-->
+
+    <ul class="list list-borderless" ng-show="currenrContact.name !== undefined">
+      <li class="item row-no-padding" style="padding:3px">
+        <div class="row row-no-padding">
+          <div class="col col-25">预约号</div>
+          <div class="col col-75 text-right assertive">{{currenrContact.reservation}}</div>
+        </div>
+      </li>
+      <li class="item row-no-padding" style="padding:3px">
+        <div class="row row-no-padding">
+          <div class="col col-25">客户姓名</div>
+          <div class="col col-75 text-right assertive">{{currenrContact.name}}</div>
+        </div>
+      </li>
+      <li class="item row-no-padding" style="padding:3px">
+        <div class="row row-no-padding">
+          <div class="col col-25">客户性别</div>
+          <div class="col col-75 text-right assertive">{{currenrContact.gender}}</div>
+        </div>
+      </li>
+      <li class="item row-no-padding" style="padding:3px">
+        <div class="row row-no-padding">
+          <div class="col col-25">身份证号</div>
+          <div class="col col-75 text-right assertive">{{currenrContact.number}}</div>
+        </div>
+      </li>
+      <li class="item row-no-padding" style="padding:3px">
+        <div class="row row-no-padding">
+          <div class="col col-25">产品名称</div>
+          <div class="col col-75 text-right positive">{{currenrContact.productname}}</div>
+        </div>
+      </li>
+      <li class="item row-no-padding" style="padding:3px">
+        <div class="row row-no-padding">
+          <div class="col col-25">预约金额</div>
+          <div class="col col-75 text-right positive">{{currenrContact.investmentAmount}}</div>
+        </div>
+      </li>
+      <li class="item row-no-padding" style="padding:3px">
+        <div class="row row-no-padding">
+          <div class="col col-20"></div>
+          <div class="col col-20 text-center">
+            <button class="button button-small button-balanced padding-horizontal icon-left ion-android-call"
+                    ui-sref="app.call({ isCalling: true, contactName: currenrContact.name, reservation: currenrContact.reservation,
+                    gender:currenrContact.gender,number:currenrContact.number,product:currenrContact.productname,amount:currenrContact.investmentAmount})">接通</button>
+          </div>
+          <div class="col col-20"></div>
+          <div class="col col-20 text-center">
+            <button class="button button-small button-stable padding-horizontal" ng-click="cancel()">取消</button>
+          </div>
+        </div>
+      </li>
+    </ul>
+
+    <ul class="list">
+      <li class="item item-divider">
+        更多排队记录
+      </li>
+      <li class="item row-no-padding" ng-repeat="contact in contacts" ng-click="selectContact(contact)">
+        <div class="row row-no-padding" style="padding: 5px;font-size:12px;color:#666;">
+          <i class="icon ion-record" style="color: green;padding-right: 3px"></i>
+          <div class="col col-40">{{contact.reservation}}</div>
+          <div class="col col-20 text-center">{{contact.name}}</div>
+          <div class="col col-33 text-right">{{contact.wait | secToTime}}</div>
+        </div>
+      <!--</li>-->
+      <!--<li class="item row-no-padding" ng-click="selectContact({'name':'王涵',type:1,reservation:201704150097,number:123,investmentAmount:'500万'})">-->
+        <!--<div class="row row-no-padding" style="padding: 5px;font-size:12px;color:#666;">-->
+          <!--<i class="icon ion-record" style="color: green;padding-right: 3px"></i>-->
+          <!--<div class="col col-40">201704150097</div>-->
+          <!--<div class="col col-20 text-center">王涵</div>-->
+          <!--<div class="col col-33 text-right">0:01:00</div>-->
+        <!--</div>-->
+      <!--</li>-->
+    </ul>
+
+   <!--<ion-item ng-if="!contacts.length">-->
+	<!--<h4 class="item-stable">当前无人在线.</h4>-->
+   <!--</ion-item>-->
+  </ion-content>
+</ion-view>

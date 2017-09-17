@@ -1,0 +1,98 @@
+<ion-view hide-back-button="true" hide-nav-bar="true">
+  <ion-nav-buttons side="right">
+    <button class="button button-icon icon"
+            ng-class="{ 'ion-ios7-mic-off': muted, 'ion-ios7-mic': !muted }"
+            ng-click="toggleMute()"
+            ng-if="cordova.platformId === 'ios' || cordova.platformId === 'android'"></button>
+    <!--<button class="button button-icon icon ion-plus-round" -->
+            <!--ng-click="openSelectContactModal()"></button>-->
+  </ion-nav-buttons>
+  <ion-content class="stable-bg" scroll="false" <!--on-scroll="updateVideoPosition()" on-scroll-complete="updateVideoPosition()"-->
+    <div class="row has-header" style="margin-top:20px;">
+      <div class="col col-67">
+        <video-view></video-view>
+
+        <div class="calling-container" ng-if="isCalling && !callInProgress">
+          <p>正在呼叫 <span class="balanced">{{ contactName }}</span>...</p>
+
+          <button class="button button-assertive" ng-click="ignore()">
+            取消
+          </button>
+        </div>
+
+        <div class="calling-container" ng-if="!isCalling && !callInProgress">
+          <p><span class="balanced">{{ contactName }}</span> 正在呼叫你</p>
+
+          <button class="button button-balanced" ng-click="answer()">
+            接听
+          </button>
+
+          <button class="button button-assertive" ng-click="ignore()">
+            拒绝
+          </button>
+        </div>
+
+        <div class="calling-container" ng-if="callInProgress">
+          <p>
+            业务接洽中...
+          </p>
+          <button class="button button-balanced" ng-click="startRecording($event)">
+            录像
+          </button>
+          <button class="button button-assertive" ng-click="ended()">
+            挂断
+          </button>
+        </div>
+      </div>
+      <div class="col col-33" ng-if="callInProgress">
+        <ul class="list list-borderless" style="margin-bottom:0;">
+          <li class="item row-no-padding">
+            <div class="row row-no-padding">
+              <div class="col col-25">预约号</div>
+              <div class="col col-75 text-right assertive">{{currenrContact.reservation}}</div>
+            </div>
+          </li>
+          <li class="item row-no-padding">
+            <div class="row row-no-padding">
+              <div class="col col-25">客户姓名</div>
+              <div class="col col-75 text-right assertive">{{currenrContact.name}}</div>
+            </div>
+          </li>
+          <li class="item row-no-padding">
+            <div class="row row-no-padding">
+              <div class="col col-25">客户性别</div>
+              <div class="col col-75 text-right assertive">{{currenrContact.gender}}</div>
+            </div>
+          </li>
+          <li class="item row-no-padding">
+            <div class="row row-no-padding">
+              <div class="col col-25">身份证号</div>
+              <div class="col col-75 text-right assertive">{{currenrContact.number}}</div>
+            </div>
+          </li>
+          <li class="item row-no-padding">
+            <div class="row row-no-padding">
+              <div class="col col-25">产品名称</div>
+              <div class="col col-75 text-right positive">{{currenrContact.productname}}</div>
+            </div>
+          </li>
+          <li class="item row-no-padding">
+            <div class="row row-no-padding">
+              <div class="col col-25">预约金额</div>
+              <div class="col col-75 text-right positive">{{currenrContact.investmentAmount}}</div>
+            </div>
+          </li>
+        </ul>
+
+        <ul class="list" scroll="true">
+          <li class="item item-divider row-no-padding text-center" style="padding:2px auto;font-size:12px;">
+            产品询问话术
+          </li>
+          <div class="words-container">
+            <div class="words" ng-bind-html="productWord"></div>
+          </div>
+        </ul>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>

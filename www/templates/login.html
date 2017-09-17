@@ -1,0 +1,24 @@
+<ion-view hide-nav-bar="true">
+  <i class="icon ion-loading-c progress-bar-icon" ng-if="loading"></i>
+  <ion-content scoll="false">
+    <div class="list list-borderless" ng-hide="loading">
+      <ion-title class="item title text-center">
+        <div class="login-title"><img src="img/banner.png"/> </div>
+      </ion-title>
+      <div class="item item-input-inset">
+        <label class="item item-input item-input-wrapper">
+          <input type="text" placeholder="请输入操作号" autofocus ng-model="data.workid">
+        </label>
+      </div>
+      <div class="item item-input-inset">
+        <label class="item item-input item-input-wrapper">
+          <input type="password" placeholder="请输入密码" autofocus ng-model="data.password" ng-keyup="login($event)">
+        </label>
+      </div>
+    </div>
+
+    <div class="padding" ng-hide="loading">
+      <button class="button button-block button-assertive" ng-click="login($event)">登录</button>
+    </div>
+  </ion-content>
+</ion-view>
