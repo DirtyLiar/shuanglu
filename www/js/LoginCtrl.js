@@ -1,6 +1,6 @@
 angular.module('phonertcdemo')
 
-  .controller('LoginCtrl', function ($scope, $state, $ionicPopup, signaling, ContactsService, Window, md5, $http, config) {
+  .controller('LoginCtrl', function ($scope, $state, $ionicPopup, $ionicLoading, signaling, ContactsService, Window, md5, $http, config) {
     $scope.data = { type:1 /*桌面端默认1-坐席*/};
     $scope.loading = false;
 
@@ -25,8 +25,10 @@ angular.module('phonertcdemo')
           });
           return;
         }
-
-        var url = `http://${config.server}/shuanglu/mobile/mobileBase/seatLogin`;
+        $ionicLoading.show({
+          template: '正在登录...'
+        });
+        let url = `http://${config.server}/shuanglu/mobile/mobileBase/seatLogin`;
         // var url = 'http://218.65.115.5:8080/shuanglu/mobile/mobileBase/seatLogin';
         $http.get(url,{
           params:{workid: $scope.data.workid, password:md5.createHash($scope.data.password)}
@@ -51,21 +53,22 @@ angular.module('phonertcdemo')
     };
 
     signaling.on('login_error', function (message) {
+      $ionicLoading.hide();
       $scope.loading = false;
-      var alertPopup = $ionicPopup.alert({
+      $ionicPopup.alert({
         title: '登录失败',
         template: message
       });
     });
 
     signaling.on('login_successful', function (users) {
-
+      $ionicLoading.hide();
       ContactsService.setOnlineUsers(users, $scope.data);
       $state.go('app.contacts');
       Window.width = 800;
       Window.height = 600;
-      var left = (window.screen.width - 800) / 2;
-      var top = (window.screen.height - 600) / 2 - 30;
+      let left = (window.screen.width - 800) / 2;
+      let top = (window.screen.height - 600) / 2 - 30;
       Window.moveTo(left, top);
     });
 

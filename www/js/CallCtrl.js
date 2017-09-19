@@ -1,6 +1,6 @@
 angular.module('phonertcdemo')
 
-  .controller('CallCtrl', function ($scope, $state, $rootScope, $timeout, $ionicModal, $stateParams, signaling, ContactsService, $http, myHash, myEvent, config) {
+  .controller('CallCtrl', function ($scope, $state, $rootScope, $timeout, $ionicModal, $ionicLoading, $stateParams, signaling, ContactsService, $http, myHash, myEvent, config) {
     var duplicateMessages = [];
     var client = null;
     var fileInfo = {};
@@ -117,6 +117,9 @@ angular.module('phonertcdemo')
           var HOST = config.dms.ip;
           var PORT = config.dms.port;
 
+          $ionicLoading.show({
+            template: '正在上传，请稍等...'
+          });
           client.connect(PORT, HOST, function() {
             console.log('CONNECTED TO: ' + HOST + ':' + PORT);
             var ConnectRequest = 'AAAREYOUREADY';
@@ -128,12 +131,14 @@ angular.module('phonertcdemo')
           client.on('data', onDataRecv);
 
           client.on('error',function(err){
+            $ionicLoading.hide();
             console.log(err);
             alert('上传出错！'+ err.message)
           });
 
           // 为客户端添加“close”事件处理函数
           client.on('close', function() {
+            $ionicLoading.hide();
             console.log('Connection closed');
           });
 
@@ -147,48 +152,7 @@ angular.module('phonertcdemo')
         });
         $event.target.innerHTML = '录像';
       }
-
-      return;
-      // var session = {
-      //   audio: true,
-      //   video: true
-      // }
-      // if($event.target.innerHTML.indexOf('录像') > -1) {
-      //   navigator.getUserMedia(session, function (stream) {
-      //     $event.target.innerHTML = '停止';
-      //     recorder = RecordRTC(stream, {
-      //       type: 'video',
-      //       mimeType: 'video/webm\;codecs=h264',
-      //       sampleRate: 44100,
-      //       bufferSize: 4096,
-      //       // mimeType: 'video/x-matroska;codecs=avc1',
-      //       fileExtension: 'mp4',
-      //       frameRate: 24,
-      //       bitsPerSecond: 128 * 8 * 1024 //码率 kbps
-      //     });
-      //     recorder.startRecording();
-      //   }, function (err) {
-      //     alert('Unable to capture your camera. Please check console logs.');
-      //     console.log(err);
-      //   });
-      // }else {
-      //   recorder.stopRecording(function(){
-      //     $event.target.innerHTML = '录像';
-      //     recorder.getDataURL(function (data) {
-      //       var base64Data = data.replace(/^data:video\/\w+;codecs=\w+;base64,/,'');
-      //       var dataBuffer = new Buffer(base64Data, 'base64');
-      //       alert(base64Data);
-      //       fs.writeFile('aaaa.mp4',dataBuffer, function(err){
-      //         if(err){
-      //           alert('保存失败')
-      //         }else{
-      //           alert('保存成功')
-      //         }
-      //       })
-      //     });
-      //   });
-      // }
-    }
+    };
 
     $scope.ended = function () {
       Object.keys($scope.contacts).forEach(function (contact) {
@@ -329,7 +293,6 @@ angular.module('phonertcdemo')
 
     var url = `http://${config.server}/shuanglu/mobile/mobileBase/getProductWord?reservation=${$scope.currenrContact.reservation}`;
     // var url = 'http://218.65.115.5:8080/shuanglu/mobile/mobileBase/getProductWord?reservation=1504771710326';
-    alert(url);
     $http.get(url).success(function (res) {
       if(res.status === '0'){
         $scope.productWord = res.data;
@@ -339,7 +302,7 @@ angular.module('phonertcdemo')
     }).error(function (data, status, headers, config) {
       //失败后的提示
       console.log("error", data, status, headers, JSON.stringify(config));
-    })
+    });
 
     $scope.$on('$destroy', function() { 
       signaling.removeListener('messageReceived', onMessageReceive);
@@ -371,7 +334,6 @@ angular.module('phonertcdemo')
         console.log('filePath>>>',recvString.substr(2));
         var url = `http://${config.server}/shuanglu/mobile/mobileBase/submit`;
         var filePath = recvString.substr(2);
-        alert(url);
         $http.get(url,{
           params:{
             reservation: $scope.currenrContact.reservation,
@@ -390,7 +352,7 @@ angular.module('phonertcdemo')
         alert('error');
         console.log('未知命令');
       }
-    };
+    }
 
     function SendVarData(buffer) {
       // alert('buffer:'+buffer+'size:'+buffer.length);
@@ -422,9 +384,8 @@ angular.module('phonertcdemo')
     var recvBuffer = Buffer.alloc(0);
     function RecvData(buffer){
       let totalLen = recvBuffer.length + buffer.length;
-      var temp = Buffer.concat([recvBuffer, buffer], totalLen);
+      recvBuffer = Buffer.concat([recvBuffer, buffer], totalLen);
 
-      recvBuffer = temp;
       if(recvBuffer.length > 8) {
         let len = recvBuffer.slice(0, 4).reverse().readInt32LE();
         let crc = recvBuffer.slice(4, 8).reverse().readInt32LE();
@@ -462,13 +423,13 @@ angular.module('phonertcdemo')
       SendVarData(buffer);
       //
       // console.log('开始发送文件索引...');
-    })
+    });
 
     // 发送文件包
     myEvent.on('sendFilePackage',function(){
 
       console.log('开始发送文件包...');
-      alert('开始发送文件包...')
+
       let orignalPackage = fileInfo.orignalPackage;
 
       for (let i = 0; i < fileInfo.packageTotal; i++){
