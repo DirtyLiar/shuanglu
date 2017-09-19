@@ -130,6 +130,18 @@ Session.prototype.call = function (success, error) {
   }]);
 };
 
+Session.prototype.startRecord = function (success, error) {
+  exec(success, error, 'PhoneRTCPlugin', 'startRecord', [{
+    sessionKey: this.sessionKey
+  }]);
+};
+
+Session.prototype.stopRecord = function (success, error) {
+  exec(success, error, 'PhoneRTCPlugin', 'stopRecord', [{
+    sessionKey: this.sessionKey
+  }]);
+};
+
 Session.prototype.receiveMessage = function (data) {
   exec(null, null, 'PhoneRTCPlugin', 'receiveMessage', [{
     sessionKey: this.sessionKey,

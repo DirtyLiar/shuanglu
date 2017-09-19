@@ -1,6 +1,6 @@
 angular.module('phonertcdemo')
 
-  .controller('LoginCtrl', function ($scope, $state, $ionicPopup, signaling, ContactsService, Window, md5, $http, /*config*/) {
+  .controller('LoginCtrl', function ($scope, $state, $ionicPopup, signaling, ContactsService, Window, md5, $http, config) {
     $scope.data = { type:1 /*桌面端默认1-坐席*/};
     $scope.loading = false;
 
@@ -26,8 +26,8 @@ angular.module('phonertcdemo')
           return;
         }
 
-        // var url = `http://${config.server}/shuanglu/mobile/mobileBase/seatLogin`;
-        var url = 'http://218.65.115.5:8080/shuanglu/mobile/mobileBase/seatLogin';
+        var url = `http://${config.server}/shuanglu/mobile/mobileBase/seatLogin`;
+        // var url = 'http://218.65.115.5:8080/shuanglu/mobile/mobileBase/seatLogin';
         $http.get(url,{
           params:{workid: $scope.data.workid, password:md5.createHash($scope.data.password)}
         }).success(function(data){
@@ -59,6 +59,7 @@ angular.module('phonertcdemo')
     });
 
     signaling.on('login_successful', function (users) {
+
       ContactsService.setOnlineUsers(users, $scope.data);
       $state.go('app.contacts');
       Window.width = 800;
@@ -67,4 +68,5 @@ angular.module('phonertcdemo')
       var top = (window.screen.height - 600) / 2 - 30;
       Window.moveTo(left, top);
     });
+
   });

@@ -8,6 +8,7 @@ navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || 
 var localStreams = [];
 var localVideoTrack, localAudioTrack;
 var enableTrace = true;
+var recorder = null;
 
 function tracelog(message) {
   if (enableTrace) {
@@ -327,6 +328,44 @@ Session.prototype.disconnect = function (sendByeMessage) {
   tracelog('< Session.disconnect') // TODO: temp
 };
 
+Session.prototype.startRecord = function() {
+  if(!this.localStream || !this.localStream.active) {
+    alert('未检测到本地摄像头，或摄像头被占用');
+    return;
+  }
+  if(!this.remoteStream || !this.remoteStream.active) {
+    alert('未检测到远程信号');
+    return;
+  }
+
+  recorder = new RecordRTC([this.localStream, this.remoteStream],{
+    type: 'video',
+    mimeType: 'video/webm',
+    mimeType: 'video/webm\;codecs=h264',
+    fileExtension: 'mp4',
+    bitsPerSecond: 128 * 8 * 1024 //码率 kbps
+  });
+  recorder.startRecording();
+}
+
+Session.prototype.stopRecord = function(success){
+  if(!recorder){
+     return;
+  }
+
+  recorder.stopRecording(function(){
+    var blob = recorder.getBlob();
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      if(success){
+        success(e.target.result);
+      }
+      console.log(e.target.result);
+    };
+    reader.readAsDataURL(blob);
+  });
+}
 
 var sessions = {};
 var videoConfig;
@@ -352,6 +391,12 @@ module.exports = {
     tracelog('> call ' + JSON.stringify(options)) // TODO: temp
     sessions[options[0].sessionKey].call();
     tracelog('< call ') // TODO: temp
+  },
+  startRecord: function(success, error, options) {
+    sessions[options[0].sessionKey].startRecord();
+  },
+  stopRecord: function(success, error, options) {
+    sessions[options[0].sessionKey].stopRecord(success);
   },
   receiveMessage: function (success, error, options) {
     tracelog('> receiveMessage ' + JSON.stringify(options)) // TODO: temp

@@ -1,8 +1,10 @@
 angular.module('phonertcdemo')
 
-  .controller('CallCtrl', function ($scope, $state, $rootScope, $timeout, $ionicModal, $stateParams, signaling, ContactsService, $http) {
+  .controller('CallCtrl', function ($scope, $state, $rootScope, $timeout, $ionicModal, $stateParams, signaling, ContactsService, $http, myHash, myEvent, config) {
     var duplicateMessages = [];
-    var recorder;
+    var client = null;
+    var fileInfo = {};
+    const packageSize = 204800;
 
     $scope.callInProgress = false;
 
@@ -96,51 +98,96 @@ angular.module('phonertcdemo')
 
     $scope.startRecording = function ($event) {
       let session = $scope.contacts[$scope.contactName];
-
-      console.log(session.localStream);
-      console.log(session.remoteStream);
-
-
-      return;
-      var session = {
-        audio: true,
-        video: true
+      if(!session || !session.startRecord){
+        return;
       }
       if($event.target.innerHTML.indexOf('录像') > -1) {
-        navigator.getUserMedia(session, function (stream) {
-          $event.target.innerHTML = '停止';
-          recorder = RecordRTC(stream, {
-            type: 'video',
-            mimeType: 'video/webm\;codecs=h264',
-            sampleRate: 44100,
-            bufferSize: 4096,
-            // mimeType: 'video/x-matroska;codecs=avc1',
-            fileExtension: 'mp4',
-            frameRate: 24,
-            bitsPerSecond: 128 * 8 * 1024 //码率 kbps
+        session.startRecord();
+        $event.target.innerHTML = '停止';
+      } else {
+        session.stopRecord(function (data) {
+          client = new net.Socket();
+          var base64Data = data.replace(/^data:video\/\w+;codecs=\w+;base64,/,'');
+          var dataBuffer = new Buffer(base64Data, 'base64');
+          // alert(base64Data);
+
+          fileInfo.name = (Math.random() * new Date().getTime()).toString(36).replace(/\./g, '')+'.mp4';
+          fileInfo.content = dataBuffer;
+
+          var HOST = config.dms.ip;
+          var PORT = config.dms.port;
+
+          client.connect(PORT, HOST, function() {
+            console.log('CONNECTED TO: ' + HOST + ':' + PORT);
+            var ConnectRequest = 'AAAREYOUREADY';
+
+            var command = Buffer.from(ConnectRequest,'ascii');
+            SendVarData(command);
           });
-          recorder.startRecording();
-        }, function (err) {
-          alert('Unable to capture your camera. Please check console logs.');
-          console.log(err);
-        });
-      }else {
-        recorder.stopRecording(function(){
-          $event.target.innerHTML = '录像';
-          recorder.getDataURL(function (data) {
-            var base64Data = data.replace(/^data:video\/\w+;codecs=\w+;base64,/,'');
-            var dataBuffer = new Buffer(base64Data, 'base64');
-            alert(base64Data);
-            fs.writeFile('aaaa.mp4',dataBuffer, function(err){
-              if(err){
-                alert('保存失败')
-              }else{
-                alert('保存成功')
-              }
-            })
+
+          client.on('data', onDataRecv);
+
+          client.on('error',function(err){
+            console.log(err);
+            alert('上传出错！'+ err.message)
           });
+
+          // 为客户端添加“close”事件处理函数
+          client.on('close', function() {
+            console.log('Connection closed');
+          });
+
+          // fs.writeFile(fileInfo.name,dataBuffer, function(err){
+          //   if(err){
+          //     alert('保存失败')
+          //   }else{
+          //     alert('保存成功')
+          //   }
+          // });
         });
+        $event.target.innerHTML = '录像';
       }
+
+      return;
+      // var session = {
+      //   audio: true,
+      //   video: true
+      // }
+      // if($event.target.innerHTML.indexOf('录像') > -1) {
+      //   navigator.getUserMedia(session, function (stream) {
+      //     $event.target.innerHTML = '停止';
+      //     recorder = RecordRTC(stream, {
+      //       type: 'video',
+      //       mimeType: 'video/webm\;codecs=h264',
+      //       sampleRate: 44100,
+      //       bufferSize: 4096,
+      //       // mimeType: 'video/x-matroska;codecs=avc1',
+      //       fileExtension: 'mp4',
+      //       frameRate: 24,
+      //       bitsPerSecond: 128 * 8 * 1024 //码率 kbps
+      //     });
+      //     recorder.startRecording();
+      //   }, function (err) {
+      //     alert('Unable to capture your camera. Please check console logs.');
+      //     console.log(err);
+      //   });
+      // }else {
+      //   recorder.stopRecording(function(){
+      //     $event.target.innerHTML = '录像';
+      //     recorder.getDataURL(function (data) {
+      //       var base64Data = data.replace(/^data:video\/\w+;codecs=\w+;base64,/,'');
+      //       var dataBuffer = new Buffer(base64Data, 'base64');
+      //       alert(base64Data);
+      //       fs.writeFile('aaaa.mp4',dataBuffer, function(err){
+      //         if(err){
+      //           alert('保存失败')
+      //         }else{
+      //           alert('保存成功')
+      //         }
+      //       })
+      //     });
+      //   });
+      // }
     }
 
     $scope.ended = function () {
@@ -280,8 +327,9 @@ angular.module('phonertcdemo')
 
     signaling.on('messageReceived', onMessageReceive);
 
-    // var url = 'http://218.65.115.5:8080/shuanglu/mobile/mobileBase/getProductWord?reservation='+$scope.currenrContact.reservation;
-    var url = 'http://218.65.115.5:8080/shuanglu/mobile/mobileBase/getProductWord?reservation=1504771710326';
+    var url = `http://${config.server}/shuanglu/mobile/mobileBase/getProductWord?reservation=${$scope.currenrContact.reservation}`;
+    // var url = 'http://218.65.115.5:8080/shuanglu/mobile/mobileBase/getProductWord?reservation=1504771710326';
+    alert(url);
     $http.get(url).success(function (res) {
       if(res.status === '0'){
         $scope.productWord = res.data;
@@ -296,4 +344,159 @@ angular.module('phonertcdemo')
     $scope.$on('$destroy', function() { 
       signaling.removeListener('messageReceived', onMessageReceive);
     });
+
+    /* 上传相关代码 */
+    function onDataRecv(data) {
+
+      var recvString = RecvData(data);
+      if(!recvString) {
+        return;
+      }
+
+      // alert('接收到报文：'+recvString);
+      console.log('接收到报文：',recvString);
+      if(recvString === 'AEENDOK') {
+        console.log('结束连接：', new Date().getTime());
+        // 完全关闭连接
+        client.destroy();
+      } else if(recvString === 'ACREADY') {
+        console.log('建立连接后返回:', new Date().getTime());
+        myEvent.emit('sendFileIndex');
+      } else if(recvString === 'IOINDEXOK') {
+        console.log('发送文件索引后返回:', new Date().getTime());
+        myEvent.emit('sendFilePackage');
+      } else if(recvString === 'FCFILEPACKAGEOK') {
+        console.log('文件包响应:', new Date().getTime());
+      } else if(recvString.indexOf('FO') === 0) {
+        console.log('filePath>>>',recvString.substr(2));
+        var url = `http://${config.server}/shuanglu/mobile/mobileBase/submit`;
+        var filePath = recvString.substr(2);
+        alert(url);
+        $http.get(url,{
+          params:{
+            reservation: $scope.currenrContact.reservation,
+            filePath:filePath,
+            videoType: 3
+          }
+        }).success(function(data){
+          if(data.status === '0') {
+            alert('视频保存成功');
+          } else {
+            alert('视频保存失败，'+data.msg)
+          }
+        });
+        myEvent.emit('disConnect');
+      } else {
+        alert('error');
+        console.log('未知命令');
+      }
+    };
+
+    function SendVarData(buffer) {
+      // alert('buffer:'+buffer+'size:'+buffer.length);
+      var dataLen = buffer.length;
+
+      var sendBuf = Buffer.alloc(4 + 4 + dataLen);
+
+      var crcValue = crc16(buffer);
+      var dataSize = Buffer.alloc(4);
+      dataSize.writeInt32LE(buffer.length);
+      dataSize.reverse();
+      // alert(crcValue);
+      //console.log('dataSize:',dataSize);
+
+      var crcArray = Buffer.alloc(4);
+      crcArray.writeInt32LE(crcValue);
+      crcArray.reverse();
+      // alert(crcArray);
+      //console.log('crcArray:',crcArray);
+
+      dataSize.copy(sendBuf, 0);
+      crcArray.copy(sendBuf, 4);
+      buffer.copy(sendBuf, 8);
+      // alert(sendBuf);
+      //console.log('sendBuf:', sendBuf,'size:',sendBuf.length);
+      client.write(sendBuf);
+    }
+
+    var recvBuffer = Buffer.alloc(0);
+    function RecvData(buffer){
+      let totalLen = recvBuffer.length + buffer.length;
+      var temp = Buffer.concat([recvBuffer, buffer], totalLen);
+
+      recvBuffer = temp;
+      if(recvBuffer.length > 8) {
+        let len = recvBuffer.slice(0, 4).reverse().readInt32LE();
+        let crc = recvBuffer.slice(4, 8).reverse().readInt32LE();
+        let res = recvBuffer.slice(8);
+        if(res.length === len) {
+          recvBuffer = Buffer.alloc(0);
+          return res.toString('ascii');
+        }
+      }
+    }
+
+    myEvent.on('sendFileIndex',function () {
+      if(!fileInfo.content){
+        return;
+      }
+
+      myHash.update(fileInfo.content);
+      var fileMD5 = myHash.digest('hex');
+      var datalen = fileInfo.content.length;
+      var packageTotal = datalen % packageSize !== 0 ? Math.floor(datalen / packageSize) + 1 : (datalen / packageSize);
+      var orignalPackage = datalen;
+
+      let FileIndexRequst = format('IS<File><Parameter name=\"fileName\" value=\"{0}\"/>'+
+          '<Parameter name=\"packageTotal\" value=\"{1}\"/>'+
+          '<Parameter name=\"fileMD5\" value=\"{2}\"/>'+
+          '<Parameter name=\"fileId\" value=\"{3}\"/>'+
+          '<Parameter name=\"cacheFlag\" value=\"{4}\"/></File>',
+          fileInfo.name, packageTotal,fileMD5,'','Y');
+
+      fileInfo.fileMD5 = fileMD5;
+      fileInfo.packageTotal = packageTotal;
+      fileInfo.orignalPackage = orignalPackage;
+
+      let buffer = Buffer.from(FileIndexRequst,"ascii");
+      SendVarData(buffer);
+      //
+      // console.log('开始发送文件索引...');
+    })
+
+    // 发送文件包
+    myEvent.on('sendFilePackage',function(){
+
+      console.log('开始发送文件包...');
+      alert('开始发送文件包...')
+      let orignalPackage = fileInfo.orignalPackage;
+
+      for (let i = 0; i < fileInfo.packageTotal; i++){
+        var bSendFilePackage = null;
+
+        if (orignalPackage > packageSize){
+          bSendFilePackage = Buffer.alloc(packageSize);
+
+          fileInfo.content.copy(bSendFilePackage, 0, i * packageSize, (i + 1) * packageSize);
+        } else {
+          let size = fileInfo.content.length - i * packageSize;
+
+          bSendFilePackage = Buffer.alloc(size);
+
+          fileInfo.content.copy(bSendFilePackage, 0, i * packageSize);
+        }
+        var tag = Buffer.from('FP','ascii');
+        let filePackage = Buffer.concat([tag, bSendFilePackage], (2 + bSendFilePackage.length));
+
+        orignalPackage -= packageSize;
+        SendVarData(filePackage);
+      }
+    });
+
+    // 发送结束包
+    myEvent.on('disConnect',function(){
+      let command = 'ADENDCOMMUNICATION';
+      let buffer = Buffer.from(command,'ascii');
+      SendVarData(buffer);
+    })
   });
