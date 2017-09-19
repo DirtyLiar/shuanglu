@@ -46,7 +46,9 @@ angular.module('phonertcdemo')
               ]
             });
           }
+          $ionicLoading.hide();
         }).error(function(err){
+          $ionicLoading.hide();
           console.log(err);
         });
       }
