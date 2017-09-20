@@ -18,9 +18,8 @@ angular.module('phonertcdemo', ['ionic',
         return null;
       }
     }])
-    .factory('myHash',function(){
-      const crypto = require('crypto');
-      return crypto.createHash('md5');
+    .factory('mycrypto',function(){
+      return require('crypto');
     })
     .factory('myEvent',function(){
       const EventEmitter = require('events');

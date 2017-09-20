@@ -1,6 +1,6 @@
 angular.module('phonertcdemo')
 
-  .controller('CallCtrl', function ($scope, $state, $rootScope, $timeout, $ionicModal, $ionicLoading, $stateParams, signaling, ContactsService, $http, myHash, myEvent, config) {
+  .controller('CallCtrl', function ($scope, $state, $rootScope, $timeout, $ionicModal, $ionicLoading, $stateParams, signaling, ContactsService, $http, mycrypto, myEvent, config) {
     var duplicateMessages = [];
     var client = null;
     var fileInfo = {};
@@ -327,9 +327,12 @@ angular.module('phonertcdemo')
         myEvent.emit('sendFileIndex');
       } else if(recvString === 'IOINDEXOK') {
         console.log('发送文件索引后返回:', new Date().getTime());
+        console.log('开始发送文件包...');
         myEvent.emit('sendFilePackage');
       } else if(recvString === 'FCFILEPACKAGEOK') {
         console.log('文件包响应:', new Date().getTime());
+        fileInfo.sendIndex++;
+        myEvent.emit('sendFilePackage');
       } else if(recvString.indexOf('FO') === 0) {
         console.log('filePath>>>',recvString.substr(2));
         var url = `http://${config.server}/shuanglu/mobile/mobileBase/submit`;
@@ -397,16 +400,16 @@ angular.module('phonertcdemo')
       }
     }
 
+    // 发送文件索引信息
     myEvent.on('sendFileIndex',function () {
       if(!fileInfo.content){
         return;
       }
-
-      myHash.update(fileInfo.content);
-      var fileMD5 = myHash.digest('hex');
+      let hash = mycrypto.createHash('md5');
+      hash.update(fileInfo.content);
+      var fileMD5 = hash.digest('hex');
       var datalen = fileInfo.content.length;
       var packageTotal = datalen % packageSize !== 0 ? Math.floor(datalen / packageSize) + 1 : (datalen / packageSize);
-      var orignalPackage = datalen;
 
       let FileIndexRequst = format('IS<File><Parameter name=\"fileName\" value=\"{0}\"/>'+
           '<Parameter name=\"packageTotal\" value=\"{1}\"/>'+
@@ -417,7 +420,8 @@ angular.module('phonertcdemo')
 
       fileInfo.fileMD5 = fileMD5;
       fileInfo.packageTotal = packageTotal;
-      fileInfo.orignalPackage = orignalPackage;
+      fileInfo.orignalPackage = datalen;
+      fileInfo.sendIndex = 0;
 
       let buffer = Buffer.from(FileIndexRequst,"ascii");
       SendVarData(buffer);
@@ -428,28 +432,24 @@ angular.module('phonertcdemo')
     // 发送文件包
     myEvent.on('sendFilePackage',function(){
 
-      console.log('开始发送文件包...');
-
-      let orignalPackage = fileInfo.orignalPackage;
-
-      for (let i = 0; i < fileInfo.packageTotal; i++){
+      if(fileInfo.sendIndex < fileInfo.packageTotal) {
         var bSendFilePackage = null;
 
-        if (orignalPackage > packageSize){
+        if (fileInfo.orignalPackage > packageSize){
           bSendFilePackage = Buffer.alloc(packageSize);
 
-          fileInfo.content.copy(bSendFilePackage, 0, i * packageSize, (i + 1) * packageSize);
+          fileInfo.content.copy(bSendFilePackage, 0, fileInfo.sendIndex * packageSize, (fileInfo.sendIndex + 1) * packageSize);
         } else {
-          let size = fileInfo.content.length - i * packageSize;
+          let size = fileInfo.content.length - fileInfo.sendIndex * packageSize;
 
           bSendFilePackage = Buffer.alloc(size);
 
-          fileInfo.content.copy(bSendFilePackage, 0, i * packageSize);
+          fileInfo.content.copy(bSendFilePackage, 0, fileInfo.sendIndex * packageSize);
         }
         var tag = Buffer.from('FP','ascii');
         let filePackage = Buffer.concat([tag, bSendFilePackage], (2 + bSendFilePackage.length));
 
-        orignalPackage -= packageSize;
+        fileInfo.orignalPackage -= packageSize;
         SendVarData(filePackage);
       }
     });
