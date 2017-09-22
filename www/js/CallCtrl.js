@@ -1,12 +1,14 @@
 angular.module('phonertcdemo')
 
-  .controller('CallCtrl', function ($scope, $state, $rootScope, $timeout, $ionicModal, $ionicLoading, $stateParams, signaling, ContactsService, $http, mycrypto, myEvent, config) {
+  .controller('CallCtrl', function ($scope, $state, $rootScope, $timeout, $interval, $ionicModal, $ionicLoading, $stateParams, signaling, ContactsService, $http, mycrypto, myEvent, config) {
     var duplicateMessages = [];
     var client = null;
     var fileInfo = {};
+    var timer = null;
     const packageSize = 204800;
 
     $scope.callInProgress = false;
+    $scope.record = {isRecording:false,recordTime: 0};
 
     $scope.isCalling = $stateParams.isCalling === 'true';
 
@@ -104,8 +106,14 @@ angular.module('phonertcdemo')
       if($event.target.innerHTML.indexOf('录像') > -1) {
         session.startRecord();
         $event.target.innerHTML = '停止';
+        $scope.record.isRecording = true;
+        timer = $interval(function () {
+          $scope.record.recordTime++;
+        },1000);
       } else {
         session.stopRecord(function (data) {
+          $scope.record.isRecording = false;
+          $interval.cancel(timer);
           client = new net.Socket();
           var base64Data = data.replace(/^data:video\/\w+;codecs=\w+;base64,/,'');
           var dataBuffer = new Buffer(base64Data, 'base64');
@@ -155,6 +163,7 @@ angular.module('phonertcdemo')
     };
 
     $scope.ended = function () {
+      $interval.cancel(timer);
       Object.keys($scope.contacts).forEach(function (contact) {
         $scope.contacts[contact].close();
         delete $scope.contacts[contact];

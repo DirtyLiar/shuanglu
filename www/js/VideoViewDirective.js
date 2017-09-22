@@ -2,13 +2,13 @@ angular.module('phonertcdemo')
   .directive('videoView', function ($rootScope, $timeout) {
     return {
       restrict: 'E',
-      template: '<div class="video-container"></div>',
+      template: '<div class="video-container"><div ng-if="record.isRecording" class="media-box"><h2><img src="img/progress.gif"><span>{{record.recordTime | secToTime}}</span></h2></div></div>',
       replace: true,
       link: function (scope, element, attrs) {
         function updatePosition() {
           cordova.plugins.phonertc.setVideoView({
             container: element[0],
-            local: { 
+            local: {
               position: [0, 4],
               size: ['50%', 300]
             }

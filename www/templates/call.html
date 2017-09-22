@@ -10,7 +10,7 @@
   <ion-content class="stable-bg" scroll="false" <!--on-scroll="updateVideoPosition()" on-scroll-complete="updateVideoPosition()"-->
     <div class="row has-header" style="margin-top:20px;">
       <div class="col col-67">
-        <video-view></video-view>
+        <video-view record="record"></video-view>
 
         <div class="calling-container" ng-if="isCalling && !callInProgress">
           <p>正在呼叫 <span class="balanced">{{ contactName }}</span>...</p>
@@ -34,7 +34,7 @@
 
         <div class="calling-container" ng-if="callInProgress">
           <p>
-            业务接洽中...
+            视频通话中...
           </p>
           <button class="button button-balanced" ng-click="startRecording($event)">
             录像
