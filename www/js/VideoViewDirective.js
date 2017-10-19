@@ -15,7 +15,7 @@ angular.module('phonertcdemo')
           });
         }
 
-        $timeout(updatePosition, 500);
+        // $timeout(updatePosition, 500);
         $rootScope.$on('videoView.updatePosition', updatePosition);
       }
     }

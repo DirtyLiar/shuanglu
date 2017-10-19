@@ -39,7 +39,7 @@
           <button class="button button-balanced" ng-click="startRecording($event)">
             录像
           </button>
-          <button class="button button-assertive" ng-click="ended()">
+          <button class="button button-assertive" ng-class="{disabled: record.isRecording}" ng-click="ended()">
             挂断
           </button>
         </div>
