@@ -49,27 +49,6 @@ function Session(sessionKey, config, sendMessageCallback) {
   self.onRemoteStreamAdded = function (event) {
     tracelog('> Session.onRemoteStreamAdded ' + event) // TODO: temp
     self.videoView = addRemoteStream(event.stream);
-    event.stream.onRender = function (context, x, y, width, height) {
-      context.font = '20px Georgia';
-
-      var userName = ' seconds remaining';
-      var measuredTextWidth = parseInt(context.measureText(userName).width);
-
-      x = x + (parseInt((width - measuredTextWidth)) / 2);
-      y = height - 40;
-
-      context.strokeStyle = 'rgb(255, 0, 0)';
-      context.fillStyle = 'rgba(255, 255, 0, .5)';
-      roundRect(context, x - 20, y - 25, measuredTextWidth + 40, 35, 20, true);
-
-      var gradient = context.createLinearGradient(0, 0, width * 2, 0);
-      gradient.addColorStop('0', 'magenta');
-      gradient.addColorStop('0.5', 'blue');
-      gradient.addColorStop('1.0', 'red');
-      context.fillStyle = gradient;
-
-      context.fillText(userName, x, y);
-    };
     self.remoteStream = event.stream;
     self.sendMessage({ type: '__answered' });
     tracelog('< Session.onRemoteStreamAdded') // TODO: temp
@@ -668,51 +647,6 @@ function onSessionDisconnect(sessionKey) {
 
   tracelog('< onSessionDisconnect ') // TODO: temp
 }
-
-  function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
-    if (typeof stroke == 'undefined') {
-      stroke = true;
-    }
-    if (typeof radius === 'undefined') {
-      radius = 5;
-    }
-    if (typeof radius === 'number') {
-      radius = {
-        tl: radius,
-        tr: radius,
-        br: radius,
-        bl: radius
-      };
-    } else {
-      var defaultRadius = {
-        tl: 0,
-        tr: 0,
-        br: 0,
-        bl: 0
-      };
-      for (var side in defaultRadius) {
-        radius[side] = radius[side] || defaultRadius[side];
-      }
-    }
-    ctx.beginPath();
-    ctx.moveTo(x + radius.tl, y);
-    ctx.lineTo(x + width - radius.tr, y);
-    ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
-    ctx.lineTo(x + width, y + height - radius.br);
-    ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
-    ctx.lineTo(x + radius.bl, y + height);
-    ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
-    ctx.lineTo(x, y + radius.tl);
-    ctx.quadraticCurveTo(x, y, x + radius.tl, y);
-    ctx.closePath();
-    if (fill) {
-      ctx.fill();
-    }
-    if (stroke) {
-      ctx.stroke();
-    }
-
-  }
 
 require("cordova/exec/proxy").add("PhoneRTCPlugin", module.exports);
 });
