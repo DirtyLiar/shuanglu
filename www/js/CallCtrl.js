@@ -1,6 +1,6 @@
 angular.module('phonertcdemo')
 
-  .controller('CallCtrl', function ($scope, $state, $rootScope, $timeout, $interval, $ionicModal, $ionicLoading, $stateParams, signaling, ContactsService, $http, mycrypto, myEvent, config) {
+  .controller('CallCtrl', function ($scope, $state, $rootScope, $timeout, $interval, $ionicModal, $ionicPopup, $ionicLoading, $stateParams, signaling, ContactsService, $http, mycrypto, myEvent, config) {
     var duplicateMessages = [];
     var client = null;
     var fileInfo = {};
@@ -141,7 +141,19 @@ angular.module('phonertcdemo')
           client.on('error',function(err){
             $ionicLoading.hide();
             console.log(err);
-            alert('上传出错！'+ err.message)
+            if($scope.isShown) {
+              return;
+            }
+            $ionicPopup.alert({
+              title: '错误',
+              template: '上传出错！'+ err.message,
+              buttons: [
+                {text: '确定', type: 'button-positive'}
+              ]
+            }).then(() => {
+              $scope.isShown = false;
+            });
+            $scope.isShown = true;
           });
 
           // 为客户端添加“close”事件处理函数
