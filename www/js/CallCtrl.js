@@ -113,6 +113,7 @@ angular.module('phonertcdemo')
       } else {
         session.stopRecord(function (data) {
           $scope.record.isRecording = false;
+          $scope.record.recordTime = 0;
           $interval.cancel(timer);
           client = new net.Socket();
           var base64Data = data.replace(/^data:video\/\w+;codecs=\w+;base64,/,'');
@@ -151,6 +152,22 @@ angular.module('phonertcdemo')
                 {text: '确定', type: 'button-positive'}
               ]
             }).then(() => {
+              try{
+                fs.exists('D:\\Topcheer',(exists) => {
+                  if(!exists) {
+                    fs.mkdir('D:\\Topcheer');
+                  }
+                  fs.writeFile('D:\\Topcheer\\'+$scope.contactName+'.mp4',fileInfo.content, function(err){
+                    if(err){
+                      console.log('保存到本地失败');
+                    }else{
+                      console.log('保存到本地成功');
+                    }
+                  });
+                });
+              }catch(ex){
+                console.log(ex);
+              }
               $scope.isShown = false;
             });
             $scope.isShown = true;
