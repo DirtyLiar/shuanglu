@@ -19,7 +19,8 @@ angular.module('phonertcdemo')
       gender: $stateParams.gender,
       number: $stateParams.number,
       productname: $stateParams.product,
-      investmentAmount: $stateParams.amount
+      investmentAmount: $stateParams.amount,
+      rate: $stateParams.rate
     };
 
     $scope.allContacts = ContactsService.onlineUsers;
@@ -379,7 +380,8 @@ angular.module('phonertcdemo')
           params:{
             reservation: $scope.currenrContact.reservation,
             filePath:filePath,
-            videoType: 3
+            videoType: 3,
+            workId: $rootScope.workId
           }
         }).success(function(data){
           if(data.status === '0') {

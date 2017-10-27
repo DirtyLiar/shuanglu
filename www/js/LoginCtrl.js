@@ -1,6 +1,6 @@
 angular.module('phonertcdemo')
 
-  .controller('LoginCtrl', function ($scope, $state, $ionicPopup, $ionicLoading, signaling, ContactsService, Window, md5, $http, config) {
+  .controller('LoginCtrl', function ($scope, $state, $rootScope, $ionicPopup, $ionicLoading, signaling, ContactsService, Window, md5, $http, config) {
     $scope.data = { type:1 /*桌面端默认1-坐席*/};
     $scope.loading = false;
 
@@ -35,6 +35,7 @@ angular.module('phonertcdemo')
         }).success(function(data){
           if(data.status === '0'){
             $scope.loading = true;
+            $rootScope.workId = data.data.workId;
             $scope.data.name = data.data.username;
             signaling.emit('login', {name: data.data.userName, type: 1 /*坐席端*/});
           } else {

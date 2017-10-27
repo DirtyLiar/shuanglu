@@ -35,5 +35,6 @@ angular.module('phonertcdemo')
 * number: 身份证号
 * productname： 产品名称
 * investmentAmount： 金额
+* rate: 风险评级
 *
 * */

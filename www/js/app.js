@@ -69,7 +69,7 @@ angular.module('phonertcdemo', ['ionic',
         templateUrl: 'templates/contacts.html'
       })
       .state('app.call', {
-        url: '/call/:contactName?isCalling&reservation&gender&number&product&amount',
+        url: '/call/:contactName?isCalling&reservation&gender&number&product&amount&rate',
         controller: 'CallCtrl',
         templateUrl: 'templates/call.html'
       });
