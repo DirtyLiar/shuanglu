@@ -338,11 +338,18 @@ Session.prototype.startRecord = function() {
     return;
   }
 
+  this.remoteStream.width = 360;
+  this.remoteStream.left = 640;
+
   recorder = new RecordRTC([this.localStream, this.remoteStream],{
     type: 'video',
     // mimeType: 'video/webm',
     mimeType: 'video/webm\;codecs=h264',
     fileExtension: 'mp4',
+    video: {
+      width: 640,
+      height: 480
+    },
     bitsPerSecond: 128 * 8 * 1024, //码率 kbps
     videoBitsPerSecond: 800000
   });

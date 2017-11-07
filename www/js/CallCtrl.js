@@ -20,7 +20,9 @@ angular.module('phonertcdemo')
       number: $stateParams.number,
       productname: $stateParams.product,
       investmentAmount: $stateParams.amount,
-      rate: $stateParams.rate
+      rate: $stateParams.rate,
+      annualized: $stateParams.annualized,
+      productPeriod: $stateParams.productPeriod
     };
 
     $scope.allContacts = ContactsService.onlineUsers;
