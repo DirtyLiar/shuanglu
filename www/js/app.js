@@ -69,7 +69,7 @@ angular.module('phonertcdemo', ['ionic',
         templateUrl: 'templates/contacts.html'
       })
       .state('app.call', {
-        url: '/call/:contactName?isCalling&reservation&gender&number&product&amount&rate&annualized&productPeriod',
+        url: '/call/:contactName?isCalling&reservation&gender&number&product&amount&rate&annualized&productPeriod&uid',
         controller: 'CallCtrl',
         templateUrl: 'templates/call.html'
       });
@@ -101,11 +101,11 @@ angular.module('phonertcdemo', ['ionic',
       switch (message.type) {
         case 'call':
           if ($state.current.name === 'app.call') { return; }
-          
+
           $state.go('app.call', { isCalling: false, contactName: name,reservation: user.user.reservation,
             gender:user.user.gender,number:user.user.number,product:user.user.productname,
             amount:user.user.investmentAmount,rate:user.user.rate,annualized:user.user.annualizedRate,
-            productPeriod: user.user.productPeriod});
+            productPeriod: user.user.productPeriod,uid: user.user.uid});
 
           break;
       }

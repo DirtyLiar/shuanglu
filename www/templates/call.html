@@ -20,7 +20,7 @@
           </button>
         </div>
 
-        <div class="calling-container" ng-if="!isCalling && !callInProgress">
+        <div class="calling-container" ng-if="isUploaded && !isCalling && !callInProgress">
           <p><span class="balanced">{{ contactName }}</span> 正在呼叫你</p>
 
           <button class="button button-balanced" ng-click="answer()">
@@ -41,6 +41,16 @@
           </button>
           <button class="button button-assertive" ng-class="{disabled: record.isRecording}" ng-click="ended()">
             挂断
+          </button>
+        </div>
+        <div class="calling-container" ng-if="!isUploaded && !callInProgress && !record.isRecording">
+          <p>请点击保存！</p>
+          <button class="button button-balanced" ng-click="upload()">
+            保存
+          </button>
+
+          <button class="button button-assertive" ng-click="cancel()">
+            取消
           </button>
         </div>
       </div>

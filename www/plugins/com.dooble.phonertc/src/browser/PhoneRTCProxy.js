@@ -338,8 +338,8 @@ Session.prototype.startRecord = function() {
     return;
   }
 
-  this.remoteStream.width = 360;
-  this.remoteStream.left = 640;
+  this.remoteStream.width = 270;
+  this.remoteStream.left = 480;
 
   recorder = new RecordRTC([this.localStream, this.remoteStream],{
     type: 'video',
@@ -347,11 +347,13 @@ Session.prototype.startRecord = function() {
     mimeType: 'video/webm\;codecs=h264',
     fileExtension: 'mp4',
     video: {
-      width: 640,
-      height: 480
+      width: 480,
+      height: 360
     },
-    bitsPerSecond: 128 * 8 * 1024, //码率 kbps
-    videoBitsPerSecond: 800000
+    // bitsPerSecond: 128 * 8 * 1024, //码率 kbps
+    // videoBitsPerSecond: 800000
+    audioBitsPerSecond : 128000,
+    videoBitsPerSecond : 2500000
   });
   recorder.startRecording();
 }
@@ -369,7 +371,7 @@ Session.prototype.stopRecord = function(success){
       if(success){
         success(e.target.result);
       }
-      console.log(e.target.result);
+      // console.log(e.target.result);
     };
     reader.readAsDataURL(blob);
   });

@@ -54,20 +54,21 @@
           <div class="col col-75 text-right positive">{{currenrContact.investmentAmount}}</div>
         </div>
       </li>
-      <!--<li class="item row-no-padding" style="padding:3px">-->
-        <!--<div class="row row-no-padding">-->
-          <!--<div class="col col-20"></div>-->
-          <!--<div class="col col-20 text-center">-->
-            <!--<button class="button button-small button-balanced padding-horizontal icon-left ion-android-call"-->
-                    <!--ui-sref="app.call({ isCalling: true, contactName: currenrContact.name, reservation: currenrContact.reservation,-->
-                    <!--gender:currenrContact.gender,number:currenrContact.number,product:currenrContact.productname,amount:currenrContact.investmentAmount,rate:currenrContact.rate})">接通</button>-->
-          <!--</div>-->
-          <!--<div class="col col-20"></div>-->
-          <!--<div class="col col-20 text-center">-->
-            <!--<button class="button button-small button-stable padding-horizontal" ng-click="cancel()">取消</button>-->
-          <!--</div>-->
-        <!--</div>-->
-      <!--</li>-->
+      <li class="item row-no-padding" style="padding:3px">
+        <div class="row row-no-padding">
+          <div class="col col-20"></div>
+          <div class="col col-20 text-center">
+            <button class="button button-small button-balanced padding-horizontal icon-left ion-android-call"
+                    ui-sref="app.call({ isCalling: true, contactName: currenrContact.name, reservation: currenrContact.reservation,
+                    gender:currenrContact.gender,number:currenrContact.number,product:currenrContact.productname,amount:currenrContact.investmentAmount,
+                    rate:currenrContact.rate,uid: currenrContact.uid})">接通</button>
+          </div>
+          <div class="col col-20"></div>
+          <div class="col col-20 text-center">
+            <button class="button button-small button-stable padding-horizontal" ng-click="cancel()">取消</button>
+          </div>
+        </div>
+      </li>
     </ul>
 
     <ul class="list">

@@ -34,10 +34,26 @@ angular.module('phonertcdemo')
           params:{workid: $scope.data.workid, password:md5.createHash($scope.data.password)}
         }).success(function(data){
           if(data.status === '0'){
+            var conf = {
+              authDomain: 'bone.wilddog.com'
+            };
             $scope.loading = true;
-            $rootScope.workId = data.data.workId;
-            $scope.data.name = data.data.username;
-            signaling.emit('login', {name: data.data.userName, type: 1 /*坐席端*/});
+            wilddog.initializeApp(conf);
+            wilddog.auth().signInAnonymously()
+            .then(function(user){
+              wilddogVideo.initialize({'appId':'wd3518016686ooadyf','token':user.getToken()});
+              $rootScope.workId = data.data.workId;
+              $scope.data.name = data.data.username;
+              signaling.emit('login', {uid: user.uid, name: data.data.userName, type: 1 /*坐席端*/});
+            }).catch(function (errors){
+              $ionicPopup.alert({
+                title: '错误',
+                template: '登录视频服务失败：'+ errors,
+                buttons: [
+                  {text: '确定', type: 'button-positive'}
+                ]
+              });
+            });
           } else {
             $ionicPopup.alert({
               title: '错误',

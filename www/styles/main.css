@@ -28,12 +28,17 @@ body{
 .video-container {
 	position: relative;
 	width: 100%;
-	height: 300px; 
+	height: 390px;
 	background-color: #000; 
 	margin-bottom: 20px;
 	margin-right: auto;
 	margin-left: auto;
 	/*margin-top: 20px;*/
+}
+#localView{
+	position: absolute;
+	bottom: 0;
+	right: 0;
 }
 .words-container{
 	/*height: 50%;*/
