@@ -6,7 +6,7 @@ angular.module('phonertcdemo')
                     <div ng-if="record.isRecording" class="media-box">
                         <h2><img src="img/progress.gif"><span>{{record.recordTime | secToTime}}</span></h2>
                     </div>
-                    <video id="localView" width="150" height="112" autoplay></video>
+                    <video id="localView" width="150" height="112" autoplay muted></video>
                     <video id="remoteView" width="523" height="390" autoplay></video>
                  </div>`,
       replace: true,

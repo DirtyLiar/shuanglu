@@ -40,10 +40,20 @@ angular.module('phonertcdemo')
     $scope.remoteStream = null;
     $scope.recorder = null;
 
-    videoInstance = wilddogVideo.call();
+    console.log('进入到call页面...');
+    $ionicLoading.show({
+      template: '正在建立连接，请稍等...'
+    });
 
-    videoInstance.on('called', onInvite);
-    videoInstance.on('token_error',function () {
+    if($rootScope.videoInstance.__emitter._events.called){
+      delete $rootScope.videoInstance.__emitter._events.called;
+    }
+    $rootScope.videoInstance.on('called', onInvite);
+
+    if($rootScope.videoInstance.__emitter._events.token_error){
+      delete $rootScope.videoInstance.__emitter._events.token_error;
+    }
+    $rootScope.videoInstance.on('token_error',function () {
       alert('token不合法或过期，请重新登录！');
     });
 
@@ -57,31 +67,32 @@ angular.module('phonertcdemo')
     if ($scope.isCalling) {
       console.log('is calling');
 
-      $timeout(function(){
-        wilddogVideo.createLocalStream(
-            {
-              captureAudio:true,
-              captureVideo:true,
-              dimension:'360p',
-              maxFPS: 25
-            })
-            .then(function(local){
-              // 获取到localStream,将媒体流绑定到页面的video类型的标签上
-              // 如果没有获得摄像头权限或无摄像头，则无法展示。
-              // local.attach(localView);
-              mConversation = videoInstance.call($scope.currenrContact.uid, local, "userData");
-              console.log(mConversation);
-              conversationStarted(mConversation);
-              console.log('calling...')
-            });
-      },2000);
-
-      signaling.emit('sendMessage', $stateParams.contactName, { type: 'call' });
+      // $timeout(function(){
+      //   wilddogVideo.createLocalStream(
+      //       {
+      //         captureAudio:true,
+      //         captureVideo:true,
+      //         dimension:'360p',
+      //         maxFPS: 25
+      //       })
+      //       .then(function(local){
+      //         // 获取到localStream,将媒体流绑定到页面的video类型的标签上
+      //         // 如果没有获得摄像头权限或无摄像头，则无法展示。
+      //         // local.attach(localView);
+      //         mConversation = $scope.videoInstance.call($scope.currenrContact.uid, local, "userData");
+      //         console.log(mConversation);
+      //         conversationStarted(mConversation);
+      //         console.log('calling...')
+      //       });
+      // },2000);
+      //
+      // signaling.emit('sendMessage', $stateParams.contactName, { type: 'call' });
     }
 
     function onInvite(conversation) {
+      console.log('监听到客户端请求....');
+      $ionicLoading.hide();
       $scope.incomingConversation = conversation;
-      console.log(conversation);
       //监听被邀请者的事件
       conversation.on('response',function (callstatus) {
         switch (callstatus){
@@ -93,12 +104,16 @@ angular.module('phonertcdemo')
         }
       });
       conversation.on('closed',function () {
+        console.log('远程已挂断');
+        $scope.incomingConversation = null;
+        $scope.ended();
       });
     }
 
     function conversationStarted(conversation){
       //监听新参与者加入conversation事件
       conversation.on('stream_received', function(stream) {
+        console.log('接收到远程视频流...');
         $scope.remoteStream = stream;
         $scope.remoteStream.attach(remoteEl);
       });
@@ -106,10 +121,10 @@ angular.module('phonertcdemo')
       conversation.on('closed', onParticipantDisconnected);
 
       conversation.on('local_stats', function(statistics) {
-        console.log('local_stats', statistics);
+        // console.log('local_stats', statistics);
       });
       conversation.on('remote_stats', function(statistics) {
-        console.log('remote_stats', statistics);
+        // console.log('remote_stats', statistics);
       });
       conversation.on('error', function (error) {
         console.log(error);
@@ -132,28 +147,25 @@ angular.module('phonertcdemo')
     }
 
     function onParticipantDisconnected(){
-      $scope.callInProgress = false;
       if($scope.remoteStream){
         $scope.remoteStream.close();
         $scope.remoteStream.detach(remoteEl);
         $scope.localStream.close();
-        $scope.localStream.stop();
         $scope.localStream.detach(localEl);
         console.log('participant_disconnected');
         $scope.currentConversation.close();
         $scope.currentConversation = null;
       }
+      $scope.callInProgress = false;
     }
 
     $scope.ignore = function () {
-      var contactNames = Object.keys($scope.contacts);
-      if (contactNames.length > 0) { 
-        $scope.contacts[contactNames[0]].disconnect();
-      } else {
-        signaling.emit('sendMessage', $stateParams.contactName, { type: 'ignore' });
-        $state.go('app.contacts');
+
+      signaling.emit('sendMessage', $stateParams.contactName, { type: 'ignore' });
+      if($scope.incomingConversation) {
+        $scope.incomingConversation.reject();
       }
-      // $scope.incomingConversation.reject();
+      $state.go('app.contacts');
     };
 
     $scope.startRecording = function ($event) {
@@ -259,7 +271,6 @@ angular.module('phonertcdemo')
 
     $scope.ended = function () {
       $interval.cancel(timer);
-      $scope.callInProgress = false;
       if($scope.currentConversation) {
         $scope.localStream.close();
         $scope.remoteStream.close();
@@ -268,6 +279,7 @@ angular.module('phonertcdemo')
         $scope.currentConversation.close();
         $scope.currentConversation = null;
       }
+      $scope.callInProgress = false;
     };
 
     $scope.upload = function() {
@@ -322,6 +334,10 @@ angular.module('phonertcdemo')
 
     $scope.answer = function () {
       if ($scope.callInProgress) { return; }
+      if(!$scope.incomingConversation){
+        console.log("未检测到请求：", $scope.incomingConversation);
+        return;
+      }
 
       $scope.callInProgress = true;
       // $timeout($scope.updateVideoPosition, 1000);

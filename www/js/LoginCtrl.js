@@ -42,6 +42,7 @@ angular.module('phonertcdemo')
             wilddog.auth().signInAnonymously()
             .then(function(user){
               wilddogVideo.initialize({'appId':'wd3518016686ooadyf','token':user.getToken()});
+              $rootScope.videoInstance = wilddogVideo.call();
               $rootScope.workId = data.data.workId;
               $scope.data.name = data.data.username;
               signaling.emit('login', {uid: user.uid, name: data.data.userName, type: 1 /*坐席端*/});
