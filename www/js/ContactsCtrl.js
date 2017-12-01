@@ -1,6 +1,6 @@
 angular.module('phonertcdemo')
 
-  .controller('ContactsCtrl', function ($scope, ContactsService, $interval) {
+  .controller('ContactsCtrl', function ($scope, $ionicPopup, ContactsService, $interval, signaling) {
     $scope.contacts = ContactsService.onlineUsers;
     $scope.currenrContact = {};
 
@@ -10,6 +10,26 @@ angular.module('phonertcdemo')
 
     $scope.cancel = function(){
       $scope.currenrContact = {};
+    }
+
+    $scope.offline = function(user, $event){
+      $ionicPopup.confirm({
+        title:'询问',
+        template: '是否让此用户下线？',
+        cancelText: '取消',
+        cancelType: 'button-light',
+        okText: '确定',
+        okType: 'button-assertive'
+      }).then(e=> {
+        if(e){
+          signaling.emit('logout', user);
+          if($scope.currenrContact == user){
+            $scope.currenrContact = {};
+          }
+          $scope.contacts.splice($scope.contacts.findIndex(item=>item == user),1);
+        }
+      });
+      $event.cancelBubble = true;
     }
 
     $scope.$on('$destroy',function(){

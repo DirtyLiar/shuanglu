@@ -76,13 +76,16 @@
         移动端排队记录
       </li>
       <li class="item row-no-padding" ng-repeat="contact in contacts" ng-click="selectContact(contact)">
-        <div class="row row-no-padding" style="padding: 5px;font-size:12px;color:#666;">
+        <div class="row row-center row-no-padding" style="padding: 5px;font-size:12px;color:#666;">
           <i class="icon ion-record" style="color: green;padding-right: 3px"></i>
-          <div class="col col-40">{{contact.reservation}}</div>
+          <div class="col col-30">{{contact.reservation}}</div>
           <div class="col col-20 text-center">{{contact.name}}</div>
           <div class="col col-33 text-right">{{contact.wait | secToTime}}</div>
+          <div class="col col-20 text-right">
+            <button class="button button-small button-assertive padding-horizontal icon-left ion-arrow-graph-down-left" ng-click="offline(contact,$event)">下线</button>
+          </div>
         </div>
-      <!--</li>-->
+      </li>
       <!--<li class="item row-no-padding" ng-click="selectContact({'name':'王涵',type:1,reservation:201704150097,number:123,investmentAmount:'500万'})">-->
         <!--<div class="row row-no-padding" style="padding: 5px;font-size:12px;color:#666;">-->
           <!--<i class="icon ion-record" style="color: green;padding-right: 3px"></i>-->
