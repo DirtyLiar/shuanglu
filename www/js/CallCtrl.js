@@ -302,22 +302,22 @@ angular.module('phonertcdemo')
       client.on('data', onDataRecv);
 
       client.on('error',function(err){
-        $ionicLoading.hide();
-        console.log(err);
-        console.log("socket状态:",client.state);
-        if($scope.isShown) {
-          return;
-        }
-        $ionicPopup.alert({
-          title: '错误',
-          template: '上传出错！'+ err.message,
-          buttons: [
-            {text: '确定', type: 'button-positive'}
-          ]
-        }).then(() => {
-          $scope.isShown = false;
-        });
-        $scope.isShown = true;
+        // $ionicLoading.hide();
+        // console.log(err);
+        // console.log("socket状态:",client.state);
+        // if($scope.isShown) {
+        //   return;
+        // }
+        // $ionicPopup.alert({
+        //   title: '错误',
+        //   template: '上传出错！'+ err.message,
+        //   buttons: [
+        //     {text: '确定', type: 'button-positive'}
+        //   ]
+        // }).then(() => {
+        //   $scope.isShown = false;
+        // });
+        // $scope.isShown = true;
       });
 
       // 为客户端添加“close”事件处理函数

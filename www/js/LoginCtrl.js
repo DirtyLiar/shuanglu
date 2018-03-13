@@ -35,13 +35,13 @@ angular.module('phonertcdemo')
         }).success(function(data){
           if(data.status === '0'){
             var conf = {
-              authDomain: 'bone.wilddog.com'
+              authDomain: 'wd6125123002awzvbo.wilddog.com'
             };
             $scope.loading = true;
             wilddog.initializeApp(conf);
             wilddog.auth().signInAnonymously()
             .then(function(user){
-              wilddogVideo.initialize({'appId':'wd3518016686ooadyf','token':user.getToken()});
+              wilddogVideo.initialize({'appId':'wd1159478137oduppv','token':user.getToken()});
               $rootScope.videoInstance = wilddogVideo.call();
               $rootScope.workId = data.data.workId;
               $scope.data.name = data.data.username;
