@@ -246,6 +246,13 @@ angular.module('phonertcdemo')
               }
               fs.writeFile(fileInfo.path, fileInfo.content, function(err){
                 if(err){
+				  $ionicPopup.alert({
+                    title: '失败',
+                    template: '保存失败,原因:'+err,
+                    buttons: [
+                      {text: '确定', type: 'button-positive'}
+                    ]
+                  })
                   console.log('保存到本地失败');
                 }else{
                   $ionicPopup.alert({
@@ -261,6 +268,13 @@ angular.module('phonertcdemo')
             });
           }catch(ex){
             fs.writeFile($scope.contactName+'.mp4', fileInfo.content);
+			$ionicPopup.alert({
+                    title: '失败',
+                    template: '保存失败,原因:'+ex,
+                    buttons: [
+                      {text: '确定', type: 'button-positive'}
+                    ]
+                  })
             console.log(ex);
           }
           // console.log(e.target.result);
