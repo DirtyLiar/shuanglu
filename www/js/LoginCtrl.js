@@ -1,7 +1,18 @@
 angular.module('phonertcdemo')
 
   .controller('LoginCtrl', function ($scope, $state, $rootScope, $ionicPopup, $ionicLoading, signaling, ContactsService, Window, md5, $http, config) {
-    $scope.data = { type:1 /*桌面端默认1-坐席*/};
+    
+	  try{
+		  fs.exists('D:\\SHUANGLULOG',(exists) => {
+			  if(!exists) {
+				  fs.mkdir('D:\\SHUANGLULOG');
+			  }
+		  });
+	  }catch(ex){
+		  
+	  }
+	  
+	$scope.data = { type:1 /*桌面端默认1-坐席*/};
     $scope.loading = false;
 
     $scope.login = function ($event) {
@@ -46,7 +57,14 @@ angular.module('phonertcdemo')
               $rootScope.workId = data.data.workId;
               $scope.data.name = data.data.username;
               signaling.emit('login', {uid: user.uid, name: data.data.userName, type: 1 /*坐席端*/});
+              
             }).catch(function (errors){
+	        	fs.appendFile('D:\\SHUANGLULOG\\LoginCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']视频服务登入失败,原因:'+errors+'\n',  function(err) {
+	     		   if (err) {
+	     			   alert(err)
+	     			   return console.error(err);
+	     		   }
+	     		});
               $ionicPopup.alert({
                 title: '错误',
                 template: '登录视频服务失败：'+ errors,
@@ -92,4 +110,21 @@ angular.module('phonertcdemo')
       Window.moveTo(left, top);
     });
 
+    //日期格式化
+    Date.prototype.Format = function (fmt) { //author: meizz
+  	  var o = {
+  		"M+": this.getMonth() + 1, //月份
+  		"d+": this.getDate(), //日
+  		"h+": this.getHours(), //小时
+  		"m+": this.getMinutes(), //分
+  		"s+": this.getSeconds(), //秒
+  		"q+": Math.floor((this.getMonth() + 3) / 3), //季度
+  		"S": this.getMilliseconds() //毫秒
+  	  };
+  	  if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+  	  for (var k in o)
+  	  if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+  	  return fmt;
+  	}
+    
   });

@@ -1,7 +1,17 @@
 angular.module('phonertcdemo')
 
   .controller('CallCtrl', function ($scope, $state, $rootScope, $timeout, $interval, $ionicModal, $ionicPopup, $ionicLoading, $stateParams, signaling, ContactsService, $http, mycrypto, myEvent, config) {
-    var duplicateMessages = [];
+   
+	  try{
+		  fs.exists('D:\\SHUANGLULOG',(exists) => {
+			  if(!exists) {
+				  fs.mkdir('D:\\SHUANGLULOG');
+			  }
+		  });
+	  }catch(ex){
+		  
+	  }
+	var duplicateMessages = [];
     var client = null;
     var fileInfo = {};
     var timer = null;
@@ -41,6 +51,13 @@ angular.module('phonertcdemo')
     $scope.recorder = null;
 
     console.log('进入到call页面...');
+  //写入日志
+    fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']进入到call页面...\n',  function(err) {
+		   if (err) {
+			   return console.error(err);
+		   }
+	});
+    
     $ionicLoading.show({
       template: '正在建立连接，请稍等...'
     });
@@ -55,6 +72,12 @@ angular.module('phonertcdemo')
     }
     $rootScope.videoInstance.on('token_error',function () {
       alert('token不合法或过期，请重新登录！');
+      //写入日志
+      fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']token不合法或过期\n',  function(err) {
+  		   if (err) {
+  			   return console.error(err);
+  		   }
+  		});
     });
 
     $ionicModal.fromTemplateUrl('templates/select_contact.html', {
@@ -66,7 +89,12 @@ angular.module('phonertcdemo')
 
     if ($scope.isCalling) {
       console.log('is calling');
-
+      //写入日志
+      fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']is calling\n',  function(err) {
+		   if (err) {
+			   return console.error(err);
+		   }
+		});
       // $timeout(function(){
       //   wilddogVideo.createLocalStream(
       //       {
@@ -91,20 +119,46 @@ angular.module('phonertcdemo')
 
     function onInvite(conversation) {
       console.log('监听到客户端请求....');
+      //写入日志
+      fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']监听到客户端请求....\n',  function(err) {
+		   if (err) {
+			   return console.error(err);
+		   }
+		});
       $ionicLoading.hide();
       $scope.incomingConversation = conversation;
       //监听被邀请者的事件
       conversation.on('response',function (callstatus) {
         switch (callstatus){
           case 'TIMEOUT':
+        	//写入日志
+              fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']timeout\n',  function(err) {
+       		   if (err) {
+       			   return console.error(err);
+       		   }
+       		});
             break;
           case 'REJECTED':
             break;
+          default:
+	        //写入日志
+	          fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']状态未识别'+callstatus+'\n',  function(err) {
+	   		   if (err) {
+	   			   return console.error(err);
+	   		   }
+	   		});
+          break;
 
         }
       });
       conversation.on('closed',function () {
         console.log('远程已挂断');
+        //写入日志
+        fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']远程已挂断....\n',  function(err) {
+ 		   if (err) {
+ 			   return console.error(err);
+ 		   }
+ 		});
         $scope.incomingConversation = null;
         $scope.ended();
       });
@@ -114,6 +168,12 @@ angular.module('phonertcdemo')
       //监听新参与者加入conversation事件
       conversation.on('stream_received', function(stream) {
         console.log('接收到远程视频流...');
+        //写入日志
+        fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']接收到远程视频流...\n',  function(err) {
+ 		   if (err) {
+ 			   return console.error(err);
+ 		   }
+ 		});
         $scope.remoteStream = stream;
         $scope.remoteStream.attach(remoteEl);
       });
@@ -123,23 +183,62 @@ angular.module('phonertcdemo')
       conversation.on('local_stats', function(statistics) {
         // console.log('local_stats', statistics);
       });
-      conversation.on('remote_stats', function(statistics) {
+      conversation.on('remote_stats', function(statistic) {
         // console.log('remote_stats', statistics);
+    	//写入日志
+          fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']远程视频流,接收大小:'+statistic.bytesReceived+'\n',  function(err) {
+   		   if (err) {
+   			   return console.error(err);
+   		   }
+   		});
       });
-      conversation.on('error', function (error) {
+      conversation.on('error', function (error) { 
         console.log(error);
+        //写入日志
+        fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']连接失败'+error+'\n',  function(err) {
+ 		   if (err) {
+ 			   return console.error(err);
+ 		   }
+ 		});
       });
       conversation.on('response',function (callstatus) {
         switch (callstatus){
           case 'REJECT':
             $scope.currentConversation = null;
+            //写入日志
+            fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']REJECT\n',  function(err) {
+     		   if (err) {
+     			   return console.error(err);
+     		   }
+     		});
             break;
           case 'BUSY':
             $scope.currentConversation = null;
+          //写入日志
+            fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']BUSY\n',  function(err) {
+     		   if (err) {
+     			   return console.error(err);
+     		   }
+     		});
             break;
           case 'TIMEOUT':
             $scope.currentConversation = null;
+            //写入日志
+            fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']TIMEOUT\n',  function(err) {
+     		   if (err) {
+     			   return console.error(err);
+     		   }
+     		});
             break;
+          	default:
+              console.log('状态未识别');
+	          	//写入日志
+	            fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']状态未识别'+callstatus+'\n',  function(err) {
+	     		   if (err) {
+	     			   return console.error(err);
+	     		   }
+	     		});
+          	break;
 
         }
       });
@@ -155,8 +254,14 @@ angular.module('phonertcdemo')
         console.log('participant_disconnected');
         $scope.currentConversation.close();
         $scope.currentConversation = null;
+        $scope.callInProgress = false;
+        //写入日志
+        fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']participant_disconnected\n',  function(err) {
+        	if (err) {
+        		return console.error(err);
+        	}
+        });
       }
-      $scope.callInProgress = false;
     }
 
     $scope.ignore = function () {
@@ -172,6 +277,11 @@ angular.module('phonertcdemo')
 
       if(!$scope.localStream || !$scope.remoteStream){
         console.log('未检测到视频信号');
+        fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']未检测到视频信号\n',  function(err) {
+  		   if (err) {
+  			   return console.error(err);
+  		   }
+  		});
         return;
       }
       if($event.target.innerHTML.indexOf('录像') > -1) {
@@ -338,6 +448,12 @@ angular.module('phonertcdemo')
       client.on('close', function() {
         $ionicLoading.hide();
         console.log('Connection closed');
+        //写入日志
+        fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']Connection closed\n',  function(err) {
+  		   if (err) {
+  			   return console.error(err);
+  		   }
+  		});
       });
     }
 
@@ -350,6 +466,12 @@ angular.module('phonertcdemo')
       if ($scope.callInProgress) { return; }
       if(!$scope.incomingConversation){
         console.log("未检测到请求：", $scope.incomingConversation);
+        //写入日志
+        fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']未检测到请求,incomingConversation is：'+$scope.incomingConversation+'\n',  function(err) {
+  		   if (err) {
+  			   return console.error(err);
+  		   }
+  		});
         return;
       }
 
@@ -368,7 +490,20 @@ angular.module('phonertcdemo')
         $scope.incomingConversation.accept(wdStream).then(conversationStarted);
       })
       .catch(function(err) {
-        console.error(err);
+    	  console.error(err);
+    	  //写入日志
+          /*fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']创建本地视频流失败，原因:'+err+'\n',  function(err) {
+    		   if (err) {
+    			   return console.error(err);
+    		   }
+    		});*/
+		  $ionicPopup.alert({
+	          title: '失败',
+	          template: '原因:'+err,
+	          buttons: [
+	            {text: '确定', type: 'button-positive'}
+	          ]
+	        })
       });
 
       setTimeout(function () {
@@ -526,6 +661,11 @@ angular.module('phonertcdemo')
               $state.go('app.contacts');
             });
             console.log('视频保存成功');
+            fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']创建本地视频流失败，原因:'+err+'\n',  function(err) {
+	 		   if (err) {
+	 			   return console.error(err);
+	 		   }
+	 		});
           } else {
             $ionicPopup.alert({
               title: '失败',
@@ -539,7 +679,7 @@ angular.module('phonertcdemo')
         });
         myEvent.emit('disConnect');
       } else {
-        // alert('error');
+         alert('保存视频,未知命令');
         console.log('未知命令');
       }
     }
@@ -570,8 +710,19 @@ angular.module('phonertcdemo')
         // alert(sendBuf);
         console.log('发包中...');
         client.write(sendBuf);
+        /*fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']发包中...\n',  function(err) {
+ 		   if (err) {
+ 			   return console.error(err);
+ 		   }
+ 		});*/
       }catch (e){
           console.error(e);
+          //写入日志
+          fs.appendFile('D:\\SHUANGLULOG\\CallCtrl'+new Date().Format("yyyy-MM-dd")+'.txt', '['+new Date().Format("yyyy-MM-dd hh:mm:ss")+']发包异常，原因:'+e+'\n',  function(err) {
+    		   if (err) {
+    			   return console.error(err);
+    		   }
+    		});
       }
     }
 
@@ -654,5 +805,22 @@ angular.module('phonertcdemo')
       let command = 'ADENDCOMMUNICATION';
       let buffer = Buffer.from(command,'ascii');
       SendVarData(buffer);
-    })
+    });
+    
+    //日期格式化
+    Date.prototype.Format = function (fmt) { //author: meizz
+  	  var o = {
+  		"M+": this.getMonth() + 1, //月份
+  		"d+": this.getDate(), //日
+  		"h+": this.getHours(), //小时
+  		"m+": this.getMinutes(), //分
+  		"s+": this.getSeconds(), //秒
+  		"q+": Math.floor((this.getMonth() + 3) / 3), //季度
+  		"S": this.getMilliseconds() //毫秒
+  	  };
+  	  if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+  	  for (var k in o)
+  	  if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+  	  return fmt;
+  	}
   });
